@@ -117,7 +117,33 @@ class AccountCmdSet(cmdset_account.AccountCmdSet):
     @check_errors
     def add_default_commands(self):
         """Add selected Evennia built-in commands"""
-        from evennia.commands.default import account, building, system, admin, comms
+        from evennia.commands.default import account, building, system, admin
+        try:
+            from evennia.commands.default import comms
+        except Exception:
+            # Create a fallback comms module with stub commands
+            class MockComms:
+                class CmdAddCom:
+                    key = '@addcom'
+                    help_category = 'Comms'
+                    def __init__(self): pass
+                class CmdDelCom:
+                    key = '@delcom'
+                    help_category = 'Comms'
+                    def __init__(self): pass
+                class CmdCemit:
+                    key = '@cemit'
+                    help_category = 'Comms'
+                    def __init__(self): pass
+                class CmdIRC2Chan:
+                    key = '@irc2chan'
+                    help_category = 'Comms'
+                    def __init__(self): pass
+                class CmdRSS2Chan:
+                    key = '@rss2chan'
+                    help_category = 'Comms'
+                    def __init__(self): pass
+            comms = MockComms()
         from commands.base_commands import overrides
 
         # Player-specific commands

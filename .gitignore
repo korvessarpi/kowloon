@@ -1,12 +1,29 @@
-/__pycache__/
-*.log
-*.sqlite3
-*.pyc
-/staticfiles/
-/venv/
-/.env
-*.pid
-*.db
-.DS_Store
+# Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+.env
+.venv/
+venv/
+
+# Django/Evennia
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+server/logs/
+server/*.pid
+portal/*.pid
+
+# Docker
+.docker/
+.dockerignore
+*.tar
+# Node (if any)
 node_modules/
+
+# OS junk
+.DS_Store
+Thumbs.db

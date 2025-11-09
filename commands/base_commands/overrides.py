@@ -92,6 +92,16 @@ except Exception:
         def func(self):
             self.caller.msg('(@cwho is unavailable in this build.)')
 
+try:
+    from evennia.commands.default.system import CmdScripts  # noqa: F401
+except Exception:
+    class CmdScripts(Command):
+        key = '@scripts'
+        locks = 'cmd:false()'
+        help_category = 'System'
+        def func(self):
+            self.caller.msg('(@scripts is unavailable in this build.)')
+
 # End compat shims.
 
 from game.evennia_compat import get_cmd_cdestroy
@@ -111,7 +121,7 @@ from evennia.commands.default.account import CmdOOC
      # CmdChannelCreate, CmdChannels, find_channel, CmdClock, CmdCBoot, CmdCdesc, CmdAllCom, CmdCWho)
 from evennia.commands.default.general import CmdSay
 from evennia.comms.models import ChannelDB
-from evennia.commands.default.system import CmdReload, CmdTime, CmdScripts
+from evennia.commands.default.system import CmdReload, CmdTime
 from evennia.commands.cmdhandler import get_and_merge_cmdsets
 
 # noinspection PyProtectedMember

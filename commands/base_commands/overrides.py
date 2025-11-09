@@ -3,12 +3,7 @@
 # Fallbacks for commands that moved/vanished across Evennia versions.
 
 # Make sure Command exists for our stubs
-try:
-    from evennia.commands.command import Command
-except Exception:
-    class Command(object):
-        key = ''; aliases = []; locks = ''; help_category = ''
-        def func(self): pass
+from evennia.commands.command import Command
 
 # Channels: CmdChannelCreate / CmdChannels
 try:

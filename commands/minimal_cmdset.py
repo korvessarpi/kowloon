@@ -154,23 +154,53 @@ class CmdReload(Command):
         """Reload the server."""
         self.caller.msg("Reloading server...")
         try:
+            # Try the most common Evennia reload methods
             from evennia.server.sessionhandler import SESSIONS
-            # Try different possible reload methods
+            
+            # Method 1: Try portal reload
             if hasattr(SESSIONS, 'portal_reload_server'):
                 SESSIONS.portal_reload_server()
-            elif hasattr(SESSIONS, 'reload_server'):
+                self.caller.msg("✅ Server reload initiated via portal.")
+                return
+            
+            # Method 2: Try direct reload
+            if hasattr(SESSIONS, 'reload_server'):
                 SESSIONS.reload_server()
-            else:
-                # Fallback - use the server reload mechanism
-                from evennia.server.server import Server
-                from evennia.utils import gametime
-                self.caller.msg("Using fallback reload method...")
-                # This will trigger a reload by restarting the server process
-                import os
-                os._exit(3)  # Exit code 3 typically means restart
+                self.caller.msg("✅ Server reload initiated.")
+                return
+                
+            # Method 3: Try server restart via amp
+            try:
+                from evennia.server import amp
+                if hasattr(amp, 'restart_server'):
+                    amp.restart_server()
+                    self.caller.msg("✅ Server restart initiated via AMP.")
+                    return
+            except ImportError:
+                pass
+            
+            # Method 4: Use Evennia's restart mechanism
+            try:
+                from evennia.utils.utils import server_services
+                services = server_services()
+                if services:
+                    self.caller.msg("✅ Initiating server restart...")
+                    import signal
+                    import os
+                    # Send SIGUSR1 to trigger Evennia's restart mechanism
+                    os.kill(os.getpid(), signal.SIGUSR1)
+                    return
+            except Exception:
+                pass
+            
+            # Fallback message
+            self.caller.msg("❌ Could not find a suitable reload method.")
+            self.caller.msg("Use 'docker compose exec app evennia restart' from the host terminal.")
+            self.caller.msg("Or use '@shutdown yes' and manually restart the server.")
+            
         except Exception as e:
-            self.caller.msg(f"Reload failed: {e}")
-            self.caller.msg("Try using '@shutdown yes' and manually restarting the server.")
+            self.caller.msg(f"❌ Reload failed: {e}")
+            self.caller.msg("Use 'docker compose exec app evennia restart' from the host terminal.")
 
 
 class CmdShutdown(Command):

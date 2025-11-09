@@ -102,6 +102,26 @@ except Exception:
         def func(self):
             self.caller.msg('(@scripts is unavailable in this build.)')
 
+try:
+    from evennia.commands.default.system import CmdObjects  # noqa: F401
+except Exception:
+    class CmdObjects(Command):
+        key = '@objects'
+        locks = 'cmd:false()'
+        help_category = 'System'
+        def func(self):
+            self.caller.msg('(@objects is unavailable in this build.)')
+
+try:
+    from evennia.commands.default.comms import CmdAddCom  # noqa: F401
+except Exception:
+    class CmdAddCom(Command):
+        key = '@addcom'
+        locks = 'cmd:false()'
+        help_category = 'Comms'
+        def func(self):
+            self.caller.msg('(@addcom is unavailable in this build.)')
+
 # End compat shims.
 
 from game.evennia_compat import get_cmd_cdestroy

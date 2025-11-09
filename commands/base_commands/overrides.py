@@ -52,27 +52,45 @@ except Exception:
             self.caller.msg('(@clock is unavailable in this build.)')
 
 # Legacy admin/comms commands referenced in some trees; stub if missing.
-def _ensure_stub(name, key, cat):
-    g = globals()
-    if name not in g:
-        class _C(Command):
-            pass
-        _C.key = key
-        _C.locks = 'cmd:false()'
-        _C.help_category = cat
-        def _f(self):
-            self.caller.msg('(%s is unavailable in this build.)' % key)
-        _C.func = _f
-        _C.__name__ = name
-        g[name] = _C
+try:
+    from evennia.commands.default.comms import CmdCBoot  # noqa: F401
+except Exception:
+    class CmdCBoot(Command):
+        key = '@cboot'
+        locks = 'cmd:false()'
+        help_category = 'Admin'
+        def func(self):
+            self.caller.msg('(@cboot is unavailable in this build.)')
 
-for _n, _k, _c in [
-    ('CmdCBoot', '@cboot', 'Admin'),
-    ('CmdCdesc', '@cdesc', 'Admin'),
-    ('CmdAllCom', 'allcom', 'Comms'),
-    ('CmdCWho', '@cwho', 'Admin'),
-]:
-    _ensure_stub(_n, _k, _c)
+try:
+    from evennia.commands.default.comms import CmdCdesc  # noqa: F401
+except Exception:
+    class CmdCdesc(Command):
+        key = '@cdesc'
+        locks = 'cmd:false()'
+        help_category = 'Admin'
+        def func(self):
+            self.caller.msg('(@cdesc is unavailable in this build.)')
+
+try:
+    from evennia.commands.default.comms import CmdAllCom  # noqa: F401
+except Exception:
+    class CmdAllCom(Command):
+        key = 'allcom'
+        locks = 'cmd:false()'
+        help_category = 'Comms'
+        def func(self):
+            self.caller.msg('(allcom is unavailable in this build.)')
+
+try:
+    from evennia.commands.default.comms import CmdCWho  # noqa: F401
+except Exception:
+    class CmdCWho(Command):
+        key = '@cwho'
+        locks = 'cmd:false()'
+        help_category = 'Admin'
+        def func(self):
+            self.caller.msg('(@cwho is unavailable in this build.)')
 
 # End compat shims.
 
@@ -93,7 +111,7 @@ from evennia.commands.default.account import CmdOOC
      # CmdChannelCreate, CmdChannels, find_channel, CmdClock, CmdCBoot, CmdCdesc, CmdAllCom, CmdCWho)
 from evennia.commands.default.general import CmdSay
 from evennia.comms.models import ChannelDB
-from evennia.commands.default.system import CmdReload, CmdTime
+from evennia.commands.default.system import CmdReload, CmdTime, CmdScripts
 from evennia.commands.cmdhandler import get_and_merge_cmdsets
 
 # noinspection PyProtectedMember

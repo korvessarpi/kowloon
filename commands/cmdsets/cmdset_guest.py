@@ -8,28 +8,40 @@ from evennia.commands.cmdset import CmdSet
 try:
     from evennia.commands.default import comms
 except Exception:
+    # Import Command base class for proper mock commands
+    from evennia.commands.command import Command
     # Create a fallback comms module with stub commands
     class MockComms:
-        class CmdAddCom:
+        class CmdAddCom(Command):
             key = '@addcom'
             help_category = 'Comms'
-            def __init__(self): pass
-        class CmdDelCom:
+            locks = 'cmd:false()'
+            def func(self):
+                self.caller.msg('(@addcom is unavailable in this build.)')
+        class CmdDelCom(Command):
             key = '@delcom'
             help_category = 'Comms'
-            def __init__(self): pass
-        class CmdAllCom:
+            locks = 'cmd:false()'
+            def func(self):
+                self.caller.msg('(@delcom is unavailable in this build.)')
+        class CmdAllCom(Command):
             key = '@allcom'
             help_category = 'Comms'
-            def __init__(self): pass
-        class CmdChannels:
+            locks = 'cmd:false()'
+            def func(self):
+                self.caller.msg('(@allcom is unavailable in this build.)')
+        class CmdChannels(Command):
             key = '@channels'
             help_category = 'Comms'
-            def __init__(self): pass
-        class CmdCWho:
+            locks = 'cmd:false()'
+            def func(self):
+                self.caller.msg('(@channels is unavailable in this build.)')
+        class CmdCWho(Command):
             key = '@cwho'
             help_category = 'Comms'
-            def __init__(self): pass
+            locks = 'cmd:false()'
+            def func(self):
+                self.caller.msg('(@cwho is unavailable in this build.)')
     comms = MockComms()
 from evennia.commands.default import account
 import sys

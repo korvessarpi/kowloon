@@ -121,28 +121,40 @@ class AccountCmdSet(cmdset_account.AccountCmdSet):
         try:
             from evennia.commands.default import comms
         except Exception:
+            # Import Command base class for proper mock commands
+            from evennia.commands.command import Command
             # Create a fallback comms module with stub commands
             class MockComms:
-                class CmdAddCom:
+                class CmdAddCom(Command):
                     key = '@addcom'
                     help_category = 'Comms'
-                    def __init__(self): pass
-                class CmdDelCom:
+                    locks = 'cmd:false()'
+                    def func(self):
+                        self.caller.msg('(@addcom is unavailable in this build.)')
+                class CmdDelCom(Command):
                     key = '@delcom'
                     help_category = 'Comms'
-                    def __init__(self): pass
-                class CmdCemit:
+                    locks = 'cmd:false()'
+                    def func(self):
+                        self.caller.msg('(@delcom is unavailable in this build.)')
+                class CmdCemit(Command):
                     key = '@cemit'
                     help_category = 'Comms'
-                    def __init__(self): pass
-                class CmdIRC2Chan:
+                    locks = 'cmd:false()'
+                    def func(self):
+                        self.caller.msg('(@cemit is unavailable in this build.)')
+                class CmdIRC2Chan(Command):
                     key = '@irc2chan'
                     help_category = 'Comms'
-                    def __init__(self): pass
-                class CmdRSS2Chan:
+                    locks = 'cmd:false()'
+                    def func(self):
+                        self.caller.msg('(@irc2chan is unavailable in this build.)')
+                class CmdRSS2Chan(Command):
                     key = '@rss2chan'
                     help_category = 'Comms'
-                    def __init__(self): pass
+                    locks = 'cmd:false()'
+                    def func(self):
+                        self.caller.msg('(@rss2chan is unavailable in this build.)')
             comms = MockComms()
         from commands.base_commands import overrides
 

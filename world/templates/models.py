@@ -87,7 +87,7 @@ class Template(SharedMemoryModel):
         access_type - type of access sought
         default - what to return if no lock of access_type was found
         """
-        return self.locks.check(accessing_obj, access_type=access_type, default=default)
+        return self.locks.check_field(accessing_obj, access_type=access_type, default=default)
 
 
 class TemplateGrantee(SharedMemoryModel):

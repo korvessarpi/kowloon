@@ -88,7 +88,7 @@ class Roster(SharedMemoryModel):
         access_type - type of access sought
         default - what to return if no lock of access_type was found
         """
-        return self.locks.check(accessing_obj, access_type=access_type, default=default)
+        return self.locks.check_field(accessing_obj, access_type=access_type, default=default)
 
     def __str__(self):
         return self.name or "Unnamed Roster"
@@ -184,7 +184,7 @@ class RosterEntry(SharedMemoryModel):
         access_type - type of access sought
         default - what to return if no lock of access_type was found
         """
-        return self.locks.check(accessing_obj, access_type=access_type, default=default)
+        return self.locks.check_field(accessing_obj, access_type=access_type, default=default)
 
     def fake_delete(self):
         """We don't really want to delete RosterEntries for reals. So we fake it."""
@@ -931,7 +931,7 @@ class RPScene(SharedMemoryModel):
         access_type - type of access sought
         default - what to return if no lock of access_type was found
         """
-        return self.locks.check(accessing_obj, access_type=access_type, default=default)
+        return self.locks.check_field(accessing_obj, access_type=access_type, default=default)
 
 
 class AbstractPlayerAllocations(SharedMemoryModel):

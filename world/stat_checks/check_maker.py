@@ -227,7 +227,7 @@ class DefinedRoll(SimpleRoll):
 
     def __init__(self, character, check: StatCheck = None, target=None, **kwargs):
         super().__init__(character, **kwargs)
-        self.check = check
+        self.check_field = check
         # target is the value that determines difficulty rating
         self.target = target or character
 
@@ -235,7 +235,7 @@ class DefinedRoll(SimpleRoll):
         """
         Get the value for our traits from our check
         """
-        return self.check.get_value_for_traits(self.character)
+        return self.check_field.get_value_for_traits(self.character)
 
     def get_roll_value_for_rating(self) -> int:
         """
@@ -243,7 +243,7 @@ class DefinedRoll(SimpleRoll):
         """
         if self.rating:
             return super().get_roll_value_for_rating()
-        self.rating = self.check.get_difficulty_rating(self.target, **self.roll_kwargs)
+        self.rating = self.check_field.get_difficulty_rating(self.target, **self.roll_kwargs)
         return self.rating.value
 
     def get_roll_value_for_knack(self) -> int:
@@ -252,8 +252,8 @@ class DefinedRoll(SimpleRoll):
         try:
             mods: ModifierHandler = self.character.mods
             base = mods.get_total_roll_modifiers(
-                self.check.get_stats_list(self.character),
-                self.check.get_skills_list(self.character),
+                self.check_field.get_stats_list(self.character),
+                self.check_field.get_skills_list(self.character),
             )
         except AttributeError:
             return 0
@@ -261,11 +261,11 @@ class DefinedRoll(SimpleRoll):
 
     @property
     def outcome(self):
-        return self.check.get_outcome_for_result(self.roll_result_object)
+        return self.check_field.get_outcome_for_result(self.roll_result_object)
 
     @property
     def roll_prefix(self):
-        roll_message = f"{self.character} checks '{self.check}' at {self.rating}"
+        roll_message = f"{self.character} checks '{self.check_field}' at {self.rating}"
         return roll_message
 
 

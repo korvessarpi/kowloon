@@ -3,7 +3,7 @@ from typeclasses.scripts.combat import combat_settings
 from world.stats_and_skills import do_dice_check
 
 from evennia.utils.idmapper.models import SharedMemoryModel
-from evennia.utils import create
+from .lazy_evennia import create
 from django.db import models
 from world.exploration import builder
 from server.utils.arx_utils import inform_staff

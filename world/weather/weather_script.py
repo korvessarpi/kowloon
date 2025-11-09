@@ -1,6 +1,6 @@
 from typeclasses.scripts.scripts import Script
 from world.weather import utils
-from evennia.utils import create
+from world.evennia_lazy import create
 
 
 class WeatherScript(Script):

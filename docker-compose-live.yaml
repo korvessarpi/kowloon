@@ -1,12 +1,66 @@
-version: '3.4'
+# docker-compose.yml (no top-level `version:` key)
 services:
-  arx:
-    image: arx:latest
+  app:
+    build: .
+    env_file: .env
     ports:
-      - "3000:3000"
-      - "8000:8000"
-    tty: true
+      - "4000:4000"   # telnet
+      - "4001:4001"   # webclient/ws
+      # - "8000:8000" # optional: Django/gunicorn later
+    depends_on:
+      - db
     volumes:
-      - type: bind
-        source: .
-        target: /usr/src/arx
+      - ./:/app
+      - staticfiles:/app/staticfiles
+    restart: unless-stopped
+    entrypoint:
+      - /bin/bash
+      - -lc
+      - |
+        set -e
+        cd /app
+
+        # If a Django project exists, prep it; otherwise skip.
+        if [ -f manage.py ]; then
+          echo 'Django mode: applying migrations & collecting static…'
+          python manage.py migrate --noinput || true
+          python manage.py collectstatic --noinput || true
+        else
+          echo 'Evennia mode: no manage.py present.'
+        fi
+
+        # Start Evennia and keep logs attached so the container stays up.
+        evennia migrate || true
+        evennia start -l
+
+        exec tail -F server/logs/portal.log server/logs/server.log
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          python - <<'PY'
+          import socket
+          s = socket.socket()
+          s.settimeout(1)
+          s.connect(("127.0.0.1", 4000))
+          s.close()
+          print("ok")
+          PY
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  db:
+    image: postgres:16
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+  staticfiles:
+

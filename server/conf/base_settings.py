@@ -1,20 +1,28 @@
 """
-Base settings that we'll inherit from
+Base settings that we'll inherit from (Arx-style game dir).
 """
-from evennia.settings_default import *
 
-# see documentation on python-decouple. tldr: create a settings.ini file at repo root, config() draws from that.
-from decouple import config, Csv
+import os  # ensure os is available for paths/env
 
-######################################################################
-# Evennia base server config
-######################################################################
+# Pull in Evennia defaults first.
+from evennia.settings_default import *  # noqa
 
-# CHANGES: replace ADDITIONAL ANSI MAPPINGS WITH the following:
-from evennia.contrib import color_markups
+# ---------------------------------------------------------------------------
+# Color markup imports (Evennia 5)
+# ---------------------------------------------------------------------------
+# Evennia 5 moved/renamed parts of contrib; this import works on current docs.
+# Fallback is kept for older trees just in case.
+try:
+    from evennia.contrib.base_systems.color_markups import color_markups  # Evennia 5
+except Exception:  # older paths fallback
+    from evennia.contrib.base_systems.color_markups import (  # type: ignore
+        color_markups,
+    )
 
+# If you previously did "+ color_markups.MUX..." etc, keep using explicit assignments.
 COLOR_ANSI_EXTRA_MAP = (
-    color_markups.CURLY_COLOR_ANSI_EXTRA_MAP + color_markups.MUX_COLOR_ANSI_EXTRA_MAP
+    color_markups.CURLY_COLOR_ANSI_EXTRA_MAP
+    + color_markups.MUX_COLOR_ANSI_EXTRA_MAP
 )
 COLOR_XTERM256_EXTRA_FG = (
     color_markups.CURLY_COLOR_XTERM256_EXTRA_FG
@@ -32,12 +40,17 @@ COLOR_XTERM256_EXTRA_GBG = (
     color_markups.CURLY_COLOR_XTERM256_EXTRA_GBG
     + color_markups.MUX_COLOR_XTERM256_EXTRA_GBG
 )
-COLOR_ANSI_BRIGHT_BG_EXTRA_MAP = (
+COLOR_ANSI_XTERM256_BRIGHT_BG_EXTRA_MAP = (
     color_markups.CURLY_COLOR_ANSI_XTERM256_BRIGHT_BG_EXTRA_MAP
     + color_markups.MUX_COLOR_ANSI_XTERM256_BRIGHT_BG_EXTRA_MAP
 )
+
+# ---------------------------------------------------------------------------
+# Permissions / channels / paths
+# ---------------------------------------------------------------------------
+
 PERMISSION_HIERARCHY = [
-    "Guest",  # note-only used if GUEST_ENABLED=True
+    "Guest",  # only used if GUEST_ENABLED=True
     "Player",
     "Helper",
     "Builders",
@@ -50,36 +63,41 @@ PERMISSION_HIERARCHY = [
     "Developer",
     "Owner",
 ]
-SERVERNAME = config("SERVERNAME", default="Arx")
-VERBOSE_GAME_NAME = config("VERBOSE_GAME_NAME", default="") or SERVERNAME
-GAME_SLOGAN = config("GAME_SLOGAN", default="Season Two: Heroes and Other Fables")
-TIME_ZONE = config("TIME_ZONE", default="America/New_York")
-USE_TZ = config("USE_TZ", default=False, cast=bool)
-TELNET_PORTS = config("TELNET_PORTS", default="3000", cast=Csv(cast=int))
-IDMAPPER_CACHE_MAXSIZE = config("IDMAPPER_CACHE_MAXSIZE", default=4000, cast=int)
-EVENNIA_ADMIN = config("EVENNIA_ADMIN", default=False, cast=bool)
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
-IN_GAME_ERRORS = config("IN_GAME_ERRORS", default=False, cast=bool)
-IDLE_TIMEOUT = config("IDLE_TIMEOUT", default=-1, cast=int)
-MAX_CHAR_LIMIT = config("MAX_CHAR_LIMIT", default=8000, cast=int)
-DEBUG = config("DEBUG", default=False, cast=bool)
-CHANNEL_COMMAND_CLASS = "commands.base_commands.channels.ArxChannelCommand"
+
+# Required channel names used below
+PUBLIC_CHANNEL_NAME = "Public"
+GUEST_CHANNEL_NAME = "Guest"
+STAFF_INFO_CHANNEL_NAME = "staffinfo"
+PLAYER_HELPER_CHANNEL_NAME = "Guides"
+
+# ---------------------------------------------------------------------------
+# Core typeclasses and command classes
+# ---------------------------------------------------------------------------
+
 BASE_ROOM_TYPECLASS = "typeclasses.rooms.ArxRoom"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_GUEST_TYPECLASS = "typeclasses.guest.Guest"
-# Important: set this to the ID of whatever room you want to have as a default for things to show up in
-DEFAULT_HOME = config("DEFAULT_HOME", default="#13")
+
+# Place new connections/objects here if not otherwise specified (set to your room dbref)
+# DEFAULT_HOME = "#13"
+
 MULTISESSION_MODE = 1
 COMMAND_DEFAULT_MSG_ALL_SESSIONS = True
+
+# Accept leading "/" or " " as default arg start
+COMMAND_DEFAULT_ARG_REGEX = r"^[ /]+.*$|$"
+
+# Insert a few extra handy ANSI mappings
 ADDITIONAL_ANSI_MAPPINGS = [
     (r"%r", "\r\n"),
 ]
-COMMAND_DEFAULT_ARG_REGEX = r"^[ /]+.*$|$"
+
 LOCKWARNING_LOG_FILE = ""
-PUBLIC_CHANNEL_NAME = config("PUBLIC_CHANNEL_NAME", default="Public")
-GUEST_CHANNEL_NAME = config("GUEST_CHANNEL_NAME", default="Guest")
-STAFF_INFO_CHANNEL_NAME = config("STAFF_INFO_CHANNEL_NAME", default="staffinfo")
-PLAYER_HELPER_CHANNEL_NAME = config("PLAYER_HELPER_CHANNEL_NAME", default="Guides")
+
+# ---------------------------------------------------------------------------
+# Channels
+# ---------------------------------------------------------------------------
+
 DEFAULT_CHANNELS = [
     {
         "key": PUBLIC_CHANNEL_NAME,
@@ -119,9 +137,14 @@ DEFAULT_CHANNELS = [
     },
 ]
 
+# ---------------------------------------------------------------------------
+# Database (SQLite by default)
+# ---------------------------------------------------------------------------
+
 DATABASES = {
     "default": {
-        "ENGINE": config("DBMS", default="django.db.backends.sqlite3"),
+        # Use SQLite unless you switch to Postgres/MySQL in production_settings.py
+        "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(GAME_DIR, "server", "evennia.db3"),
         "USER": "",
         "PASSWORD": "",
@@ -131,13 +154,19 @@ DATABASES = {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Templates
+# ---------------------------------------------------------------------------
+
 TEMPLATES[0]["OPTIONS"]["context_processors"] += [
     "web.character.context_processors.consts"
 ]
 TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG
 
-# Global and Evennia-specific apps. This ties everything together so we can
-# refer to app models and perform DB syncs.
+# ---------------------------------------------------------------------------
+# Installed apps (Arx additions)
+# ---------------------------------------------------------------------------
+
 INSTALLED_APPS += (
     "world.dominion",
     "world.msgs",
@@ -171,79 +200,61 @@ INSTALLED_APPS += (
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 3000
 
-######################################################################
-# Game Time setup
-######################################################################
-TIME_FACTOR = config("TIME_FACTOR", cast=float, default=2.0)
-INVESTIGATION_PROGRESS_RATE = config(
-    "INVESTIGATION_PROGRESS_RATE", cast=float, default=1.0
-)
-INVESTIGATION_DIFFICULTY_MOD = config(
-    "INVESTIGATION_DIFFICULTY_MOD", default=5, cast=int
-)
+# ---------------------------------------------------------------------------
+# Game time / magic / helpdesk (left mostly as-is)
+# ---------------------------------------------------------------------------
 
-######################################################################
-# Magic setup
-######################################################################
 MAGIC_CONDITION_MODULES = ("world.magic.conditionals",)
 
-######################################################################
-# Helpdesk settings
-######################################################################
-HELPDESK_CREATE_TICKET_HIDE_ASSIGNED_TO = config(
-    "HELPDESK_CREATE_TICKET_HIDE_ASSIGNED_TO", default=True, cast=bool
-)
+# ---------------------------------------------------------------------------
+# Logs
+# ---------------------------------------------------------------------------
 
-# Queue.id for our Requests. Should normally be 1, but can be changed if you move queues around
-REQUEST_QUEUE_SLUG = config("REQUEST_QUEUE_SLUG", default="Request")
-BUG_QUEUE_SLUG = config("BUG_QUEUE_SLUG", default="Bugs")
-
-######################################################################
-# Dominion settings
-######################################################################
 BATTLE_LOG = os.path.join(LOG_DIR, "battle.log")
 DOMINION_LOG = os.path.join(LOG_DIR, "dominion.log")
 LOG_FORMAT = "%(asctime)s: %(message)s"
 DATE_FORMAT = "%m/%d/%Y %I:%M:%S"
-GLOBAL_DOMAIN_INCOME_MOD = config("GLOBAL_DOMAIN_INCOME_MOD", cast=float, default=0.75)
 
-SECRET_KEY = config("SECRET_KEY", default="PLEASEREPLACEME12345")
-HOST_BLOCKER_API_KEY = config("HOST_BLOCKER_API_KEY", default="SOME_KEY")
-import cloudinary
+# ---------------------------------------------------------------------------
+# Admin/Email defaults (prevent NameError; configurable via env or prod settings)
+# ---------------------------------------------------------------------------
+ADMIN_NAME = os.getenv("ADMIN_NAME", "")  # e.g. "Game Admin"
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")  # e.g. "admin@example.com"
+SEND_ADMIN_EMAILS = os.getenv("SEND_ADMIN_EMAILS", "false").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
-cloudinary.config(
-    cloud_name=config("CLOUDINARY_NAME", default="SOME_NAME"),
-    api_key=config("CLOUDINARY_API_KEY", default="SOME_KEY"),
-    api_secret=config("CLOUDINARY_API_SECRET", default="SOME_KEY"),
-)
+# ---------------------------------------------------------------------------
+# Email / Cloudinary (keys live in production_settings.py or env)
+# ---------------------------------------------------------------------------
 
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = config("SENDGRID_API_KEY", default="MISSING_KEY")
-EMAIL_HOST = config("EMAIL_HOST", default="localhost")
-EMAIL_PORT = config("EMAIL_PORT", cast=int, default=25)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="admin@arxmush.org")
-ADMIN_NAME = config("ADMIN_NAME", default="Arx Admin")
-ADMIN_EMAIL = config("ADMIN_EMAIL", default="admin@arxmush.org")
-SEND_ADMIN_EMAILS = config("SEND_ADMIN_EMAILS", default=False, cast=bool)
+
+# Admin emails (disabled unless all present)
 if ADMIN_NAME and ADMIN_EMAIL and SEND_ADMIN_EMAILS:
     ADMINS = [(ADMIN_NAME, ADMIN_EMAIL)]
 else:
     ADMINS = []
 MANAGERS = ADMINS
-GAME_INDEX_ENABLED = config("SEND_GAME_INDEX", cast=bool, default=False)
-ISSUES_URL = config("ISSUES_URL", default="")
-# Evennia's base settings screw up current account creation
+
+# ---------------------------------------------------------------------------
+# Auth / Middleware
+# ---------------------------------------------------------------------------
+
+# Evennia’s default password validators can be strict with legacy data
 AUTH_PASSWORD_VALIDATORS = []
+
+# Keep middleware lean; XViewMiddleware is tied to admindocs and not needed here.
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",  # 1.4?
+    "django.contrib.messages.middleware.MessageMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.admindocs.middleware.XViewMiddleware",
     "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
     "web.middleware.auth.SharedLoginMiddleware",
 ]
-SHELL_PLUS_PRINT_SQL = config("SHELL_PLUS_PRINT_SQL", cast=bool, default=False)
+

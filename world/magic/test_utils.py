@@ -1,6 +1,6 @@
 from world.magic.models import *
 from server.utils.test_utils import ArxTest
-from evennia.utils import create
+from world.evennia_lazy import create
 from world.crafting.models import CraftingRecipe
 from world.traits.models import Trait
 

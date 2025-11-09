@@ -7,7 +7,7 @@ from evennia.scripts.models import ScriptDB
 from datetime import timedelta
 from django.utils import timezone
 from typeclasses.scripts.script_mixins import RunDateMixin
-from evennia.utils import create
+from world.evennia_lazy import create
 
 
 _MAGIC_LOG_ENABLED = False

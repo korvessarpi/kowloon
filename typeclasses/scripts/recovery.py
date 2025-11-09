@@ -5,6 +5,9 @@ Script for characters healing.
 from typeclasses.scripts.scripts import Script
 from server.utils.arx_utils import CachedProperty
 from datetime import datetime
+from game.evennia_compat import get_channelhandler
+channelhandler = get_channelhandler()
+
 
 
 class Recovery(Script):

@@ -19,9 +19,9 @@ from world.conditions.models import (
 class RollModifierAdmin(admin.ModelAdmin):
     """Admin class for RollModifier"""
 
-    list_display = ("id", "object", "name", "stat", "skill", "value", "check")
+    list_display = ("id", "object", "name", "stat", "skill", "value", "check_field")
     search_fields = ("id", "object__db_key")
-    list_filter = ("check", "modifier_type")
+    list_filter = ("check_field", "modifier_type")
     save_as = True
     raw_id_fields = ("object",)
 
@@ -80,3 +80,4 @@ admin.site.register(RollModifier, RollModifierAdmin)
 admin.site.register(EffectTrigger, EffectTriggerAdmin)
 admin.site.register(CharacterHealthStatus, CharacterHealthStatusAdmin)
 admin.site.register(RecoveryRunner)
+

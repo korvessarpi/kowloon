@@ -107,7 +107,7 @@ class RollModifier(SharedMemoryModel):
         help_text="Only applies if target has a tag by this name.",
     )
     # type of roll/check this modifier applies to
-    check = models.PositiveSmallIntegerField(choices=CHECK_CHOICES, default=ANY)
+    check_field = models.PositiveSmallIntegerField(db_column="check", choices=CHECK_CHOICES, default=ANY)
     # restricting modifier to specific stat/skill/ability
     stat = models.CharField(
         blank=True, max_length=40, help_text="Only applies for checks with this stat."

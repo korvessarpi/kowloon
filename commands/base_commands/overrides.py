@@ -1,3 +1,84 @@
+
+# --- Evennia compat shims (auto) ---
+# Fallbacks for commands that moved/vanished across Evennia versions.
+
+# Make sure Command exists for our stubs
+try:
+    from evennia.commands.command import Command
+except Exception:
+    class Command(object):
+        key = ''; aliases = []; locks = ''; help_category = ''
+        def func(self): pass
+
+# Channels: CmdChannelCreate / CmdChannels
+try:
+    from evennia.commands.default.comms import CmdChannelCreate, CmdChannels  # noqa: F401
+except Exception:
+    class CmdChannelCreate(Command):
+        key = '@ccreate'
+        locks = 'cmd:false()'
+        help_category = 'Comms'
+        def func(self):
+            self.caller.msg('(@ccreate is unavailable in this build.)')
+
+    class CmdChannels(Command):
+        key = '@channels'
+        locks = 'cmd:false()'
+        help_category = 'Comms'
+        def func(self):
+            self.caller.msg('(@channels is unavailable in this build.)')
+
+# Helper sometimes referenced by old code paths; keep harmless fallback.
+def find_channel(name):
+    try:
+        from evennia.utils.search import search_channel
+    except Exception:
+        return None
+    try:
+        res = search_channel(name)
+    except Exception:
+        res = None
+    return res[0] if isinstance(res, (list, tuple)) and res else res
+
+# System: CmdClock (may be absent/relocated)
+try:
+    from evennia.commands.default.system import CmdClock  # noqa: F401
+except Exception:
+    class CmdClock(Command):
+        key = '@clock'
+        locks = 'cmd:false()'
+        help_category = 'System'
+        def func(self):
+            self.caller.msg('(@clock is unavailable in this build.)')
+
+# Legacy admin/comms commands referenced in some trees; stub if missing.
+def _ensure_stub(name, key, cat):
+    g = globals()
+    if name not in g:
+        class _C(Command):
+            pass
+        _C.key = key
+        _C.locks = 'cmd:false()'
+        _C.help_category = cat
+        def _f(self):
+            self.caller.msg('(%s is unavailable in this build.)' % key)
+        _C.func = _f
+        _C.__name__ = name
+        g[name] = _C
+
+for _n, _k, _c in [
+    ('CmdCBoot', '@cboot', 'Admin'),
+    ('CmdCdesc', '@cdesc', 'Admin'),
+    ('CmdAllCom', 'allcom', 'Comms'),
+    ('CmdCWho', '@cwho', 'Admin'),
+]:
+    _ensure_stub(_n, _k, _c)
+
+# End compat shims.
+
+from game.evennia_compat import get_cmd_cdestroy
+CmdCdestroy = get_cmd_cdestroy()
+from commands.compat_evennia3 import *  # Evennia v3 compat
 """
 General Character commands usually available to all characters
 """
@@ -8,20 +89,11 @@ from django.core.exceptions import ValidationError
 
 from evennia.server.sessionhandler import SESSIONS
 from evennia.commands.default.account import CmdOOC
-from evennia.commands.default.comms import (
-    CmdCdestroy,
-    CmdChannelCreate,
-    CmdChannels,
-    find_channel,
-    CmdClock,
-    CmdCBoot,
-    CmdCdesc,
-    CmdAllCom,
-    CmdCWho,
-)
+# from evennia.commands.default.comms import (# disabled for Evennia 3
+     # CmdChannelCreate, CmdChannels, find_channel, CmdClock, CmdCBoot, CmdCdesc, CmdAllCom, CmdCWho)
 from evennia.commands.default.general import CmdSay
 from evennia.comms.models import ChannelDB
-from evennia.commands.default.system import CmdReload, CmdScripts, CmdTime
+from evennia.commands.default.system import CmdReload, CmdTime
 from evennia.commands.cmdhandler import get_and_merge_cmdsets
 
 # noinspection PyProtectedMember

@@ -11,8 +11,8 @@ Rather, each script tends to inherit from the base Script class and
 just overloads its hooks to have it perform its function.
 
 """
-
-from evennia.comms import channelhandler
+from game.evennia_compat import get_channelhandler
+channelhandler = get_channelhandler()
 from evennia.scripts.models import ScriptDB
 from evennia.scripts.scripts import DefaultScript
 from evennia.utils import logger

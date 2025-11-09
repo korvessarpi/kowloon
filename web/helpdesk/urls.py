@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LogoutView
 """
 django-helpdesk - A Django powered ticket tracker for small enterprise.
 
@@ -175,7 +176,7 @@ urlpatterns += [
     #     name='login'),
     re_path(
         r"^logout/$",
-        django.contrib.auth.views.LogoutView,
+        django.contrib.auth.views.LogoutView.as_view(),
         {"template_name": "helpdesk/registration/login.html", "next_page": "../"},
         name="logout",
     ),

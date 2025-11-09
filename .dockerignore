@@ -1,1 +1,12 @@
-server/evennia.db3
+.git
+.gitignore
+evenv
+venv
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+staticfiles
+media

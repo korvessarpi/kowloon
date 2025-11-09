@@ -28,13 +28,13 @@ class TestMagicConditions(ArxTest):
         handler = ConditionalHandler(
             "require:weather(MagicTest1);prohibit:weather(MagicTest2)"
         )
-        self.assertTrue(handler.check(None, None, "require", default=True))
-        self.assertFalse(handler.check(None, None, "prohibit", default=False))
+        self.assertTrue(handler.check_field(None, None, "require", default=True))
+        self.assertFalse(handler.check_field(None, None, "prohibit", default=False))
         handler = ConditionalHandler(
             "require:weather(MagicTest2);prohibit:weather(MagicTest1)"
         )
-        self.assertFalse(handler.check(None, None, "require", default=True))
-        self.assertTrue(handler.check(None, None, "prohibit", default=False))
+        self.assertFalse(handler.check_field(None, None, "require", default=True))
+        self.assertTrue(handler.check_field(None, None, "prohibit", default=False))
 
 
 class TestMagicSystem(ArxMagicTest):

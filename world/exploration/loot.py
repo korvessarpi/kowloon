@@ -1,6 +1,6 @@
 import random
 
-from evennia.utils import create
+from world.evennia_lazy import create
 from server.utils.arx_utils import a_or_an
 from server.utils.picker import WeightedPicker
 from typeclasses.bauble import Bauble

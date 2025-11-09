@@ -1,6 +1,12 @@
+from django.conf import settings
+VERBOSE_GAME_NAME_FALLBACK = getattr(settings, "VERBOSE_GAME_NAME", getattr(settings, "SERVERNAME", getattr(settings, "GAME_NAME", "Evennia")))
+
 # -*- coding: utf-8 -*-
 """
 Connection screen
+
+from django.conf import settings
+VERBOSE_GAME_NAME_FALLBACK = getattr(settings, 'VERBOSE_GAME_NAME', getattr(settings, 'SERVERNAME', 'Kowloon'))
 
 Texts in this module will be shown to the user at login-time.
 
@@ -32,7 +38,7 @@ CONNECTION_SCREEN = (
 
  Enter {whelp{n for more info. {wlook{n will re-show this screen.
 {b=============================================================={n"""
-    % settings.VERBOSE_GAME_NAME
+    % VERBOSE_GAME_NAME_FALLBACK
 )
 
 ##"""{b=============================================================={n

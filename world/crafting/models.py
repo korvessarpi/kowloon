@@ -2,7 +2,7 @@ from django.db import models
 
 from evennia.locks.lockhandler import LockHandler
 from evennia.utils.idmapper.models import SharedMemoryModel
-from evennia.utils import create
+from world.evennia_lazy import create
 from server.utils.arx_utils import CachedProperty, CachedPropertiesMixin
 from world.crafting.querysets import CraftMaterialsAmountQuerySet
 from typing import Iterable
@@ -103,7 +103,7 @@ class CraftingRecipe(CachedPropertiesMixin, SharedMemoryModel):
         access_type - type of access sought
         default - what to return if no lock of access_type was found
         """
-        return self.locks.check(accessing_obj, access_type=access_type, default=default)
+        return self.locks.check_field(accessing_obj, access_type=access_type, default=default)
 
     def org_owners(self):
         return self.known_by.select_related("organization_owner").filter(

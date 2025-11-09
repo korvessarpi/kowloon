@@ -58,7 +58,16 @@ from typing import List
 
 from evennia.utils.idmapper.models import SharedMemoryModel
 from evennia.locks.lockhandler import LockHandler
-from evennia.utils import create
+from django.utils.functional import LazyObject
+
+class _CreateLazy(LazyObject):
+    def _setup(self):
+        # Import only when first used (after apps are ready)
+        from world.evennia_lazy import create as _create
+        self._wrapped = _create
+
+create = _CreateLazy()
+
 from django.db import models
 from django.db.models import Q, Count, F, Sum, Case, When
 from django.conf import settings
@@ -69,7 +78,9 @@ import typeclasses.npcs.constants
 from typeclasses.mixins import InformMixin
 from world.dominion.domain.models import LAND_SIZE, LAND_COORDS
 from world.dominion.reports import WeeklyReport
-from world.dominion.agenthandler import AgentHandler
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from world.dominion.agenthandler import AgentHandler
 from world.dominion.managers import OrganizationManager, LandManager, RPEventQuerySet
 from world.dominion.plots.models import Plot, PlotAction, PCPlotInvolvement
 from world.stats_and_skills import do_dice_check
@@ -2494,7 +2505,7 @@ class Organization(InformMixin, SharedMemoryModel):
                 return member.rank <= self.default_access_rank
             except (AttributeError, Member.DoesNotExist):
                 return False
-        return self.locks.check(accessing_obj, access_type=access_type, default=default)
+        return self.locks.check_field(accessing_obj, access_type=access_type, default=default)
 
     def msg(self, message, prefix=True, use_channel_color=True, *args, **kwargs):
         """Sends msg to all active members"""
@@ -2627,7 +2638,7 @@ class Organization(InformMixin, SharedMemoryModel):
         """Sets up the org with channel and board"""
         from typeclasses.channels import Channel
         from typeclasses.bulletin_board.bboard import BBoard
-        from evennia.utils.create import create_object, create_channel
+        from world.evennia_lazy import create_object, create_channel
 
         lockstr = (
             "send: organization(%s) or perm(builders);listen: organization(%s) or perm(builders)"

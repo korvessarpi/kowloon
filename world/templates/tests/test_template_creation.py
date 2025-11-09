@@ -343,7 +343,7 @@ class TemplateTests(ArxCommandTest, TemplateMixins):
 
         id = other_template.id
 
-        from evennia.utils import create
+        from world.evennia_lazy import create
 
         typeclass = "typeclasses.readable.readable.Readable"
 

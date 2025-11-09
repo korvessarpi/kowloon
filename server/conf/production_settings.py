@@ -1,56 +1,39 @@
-"""
-Settings we use for production. Some of these could eventually be moved into a settings.ini file
-"""
-from server.conf.base_settings import *
+# --- Django 4+ i18n compat shim for legacy imports ---------------------------
+# Some third-party / legacy modules still use:
+#   ugettext, ugettext_lazy, ungettext, ungettext_lazy, ugettext_noop
+# These were removed in Django ≥4. We alias them to the modern gettext API.
+from django.utils import translation as _translation  # this is the module object
 
-from decouple import config, Csv
+# Only alias if the old names are missing
+if not hasattr(_translation, "ugettext"):
+    from django.utils.translation import (
+        gettext, gettext_lazy,
+        ngettext, ngettext_lazy,
+        gettext_noop,  # available as a no-op marker
+    )
+    _translation.ugettext = gettext
+    _translation.ugettext_lazy = gettext_lazy
+    _translation.ungettext = ngettext
+    _translation.ungettext_lazy = ngettext_lazy
+    _translation.ugettext_noop = gettext_noop
+# --- end compat shim ----------------------------------------------------------
 
-TELNET_INTERFACES = config("TELNET_INTERFACES", default="45.33.87.194", cast=Csv())
-WEBSOCKET_CLIENT_INTERFACE = config(
-    "WEBSOCKET_CLIENT_INTERFACE", default="45.33.87.194"
-)
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS", default=".arxmush.org, .arxgame.org", cast=Csv()
-)
-WEBSERVER_PORT_EXTERNAL = config("WEBSERVER_PORT_EXTERNAL", default=8000, cast=int)
-WEBSERVER_PORT_INTERNAL = config("WEBSERVER_PORT_INTERNAL", default=5001, cast=int)
-WEBSERVER_PORTS = [(WEBSERVER_PORT_EXTERNAL, WEBSERVER_PORT_INTERNAL)]
-WEBSOCKET_CLIENT_PORT = config("WEBSOCKET_CLIENT_PORT", default=8001, cast=int)
-WEBSOCKET_CLIENT_URL = config(
-    "WEBSOCKET_CLIENT_URL", default="wss://play.arxgame.org/ws"
-)
-SSH_PORTS = config("SSH_PORTS", default="8022", cast=Csv(cast=int))
-SSL_PORTS = config("SSL_PORTS", default="4001", cast=Csv(cast=int))
-AMP_PORT = config("AMP_PORT", default=5000, cast=int)
-SITE_HEADER = config("SITE_HEADER", default="ArxPrime Admin")
-INDEX_TITLE = config("INDEX_TITLE", default="ArxPrime Admin")
-CHECK_VPN = config("CHECK_VPN", default=True, cast=bool)
-MAX_CHAR_LIMIT = config("MAX_CHAR_LIMIT", default=8000, cast=int)
+# Import your base settings AFTER the shim so import-time i18n users are patched.
+from .settings import *
 
-######################################################################
-# Contrib config
-######################################################################
-GAME_INDEX_LISTING = {
-    "game_status": config("INDEX_GAME_STATUS", default="beta"),
-    # Optional, comment out or remove if N/A
-    "game_website": config("INDEX_GAME_WEBSITE", default="http://play.arxgame.org"),
-    "short_description": config(
-        "INDEX_SHORT_DESC", default="MUX-style game in an original fantasy setting"
-    ),
-    # Optional but highly recommended. Markdown is supported.
-    "long_description": config(
-        "INDEX_LONG_DESC",
-        default=(
-            "Arx is a MUX-style game in an original low-fantasy setting, "
-            "inspired by series such as Game of Thrones and The First Law. "
-        ),
-    ),
-    "listing_contact": config("INDEX_CONTACT", default="brannigd@hotmail.com"),
-    # At minimum, specify this or the web_client_url options. Both is fine, too.
-    "telnet_hostname": config("INDEX_TELNET_HOSTNAME", default="play.arxgame.org"),
-    "telnet_port": TELNET_PORTS[0],
-    # At minimum, specify this or the telnet_* options. Both is fine, too.
-    "web_client_url": config(
-        "INDEX_WEB_CLIENT_URL", default="https://play.arxgame.org/webclient"
-    ),
-}
+# -------------------------- Production overrides -----------------------------
+DEBUG = False
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "::1", "*"]  # tighten in real prod
+
+# Keep DATABASES from base; Docker/env should supply credentials.
+
+# Helpdesk / API config (via env)
+import os
+REQUEST_QUEUE_SLUG = os.environ.get("REQUEST_QUEUE_SLUG", "")
+REQUEST_API_URL    = os.environ.get("REQUEST_API_URL", "")
+REQUEST_API_TOKEN  = (
+    os.environ.get("REQUEST_API_TOKEN")
+    or os.environ.get("REQUEST_API_KEY")
+    or ""
+)
+

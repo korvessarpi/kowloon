@@ -114,10 +114,10 @@ class CodedEffect(object):
         return None
 
     def valid_conditions(self):
-        require = self.conditions.check(
+        require = self.conditions.check_field(
             self.lead, self.target_obj, "require", default=True
         )
-        prohibit = self.conditions.check(
+        prohibit = self.conditions.check_field(
             self.lead, self.target_obj, "prohibit", default=False
         )
 

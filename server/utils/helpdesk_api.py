@@ -6,6 +6,19 @@ work, I'm just going to build and change the fucking models by hand
 here.
 """
 from django.conf import settings
+
+import os
+def _get_config():
+    slug = getattr(settings, "REQUEST_QUEUE_SLUG", os.environ.get("REQUEST_QUEUE_SLUG"))
+    url  = getattr(settings, "REQUEST_API_URL",   os.environ.get("REQUEST_API_URL"))
+    tok  = (getattr(settings, "REQUEST_API_TOKEN", None)
+            or getattr(settings, "REQUEST_API_KEY", None)
+            or os.environ.get("REQUEST_API_TOKEN")
+            or os.environ.get("REQUEST_API_KEY"))
+    if not (slug and url and tok):
+        return None
+    return {"slug": slug, "url": url, "token": tok}
+
 from server.utils.arx_utils import inform_staff
 from datetime import datetime
 from web.helpdesk.models import Ticket, Queue, FollowUp, KBItem
@@ -15,7 +28,7 @@ def create_ticket(
     caller,
     message,
     priority=3,
-    queue_slug=settings.REQUEST_QUEUE_SLUG,
+    queue_slug=getattr(settings, "REQUEST_QUEUE_SLUG", None),
     kb_category=None,
     send_email=True,
     optional_title=None,

@@ -13,8 +13,10 @@ Agenthandler is created by each agent instance during its
 __init__ and is populated with the instances of agents we find
 in the world.
 """
-
-from evennia.utils.create import create_object
+# lazy wrapper for evennia.utils.create.create_object
+def create_object(*args, **kwargs):
+    from world.evennia_lazy import create_object as _create_object
+    return _create_object(*args, **kwargs)
 
 npc_typeclass = "typeclasses.npcs.npc.Agent"
 retainer_typeclass = "typeclasses.npcs.npc.Retainer"

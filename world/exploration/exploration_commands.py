@@ -8,7 +8,7 @@ from world.exploration.models import (
     Monster,
 )
 from evennia.commands.cmdset import CmdSet
-from evennia.utils import create
+from world.evennia_lazy import create
 from server.conf import settings
 from world.stats_and_skills import do_dice_check
 import random

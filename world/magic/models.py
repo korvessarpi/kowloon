@@ -1,5 +1,5 @@
 from evennia.utils.idmapper.models import SharedMemoryModel
-from evennia.utils.create import create_object
+from world.evennia_lazy import create_object
 from django.db import models
 from server.utils.picker import WeightedPicker
 from evennia.utils import logger

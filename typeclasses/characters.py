@@ -216,6 +216,12 @@ class Character(
             if extras:
                 extras += "\n"
             string += "\n\n%s%s" % (extras, desc)
+        
+        # Add naked descriptions that aren't covered by clothing
+        nakeds_display = self.get_nakeds_display(pobject)
+        if nakeds_display:
+            string += nakeds_display
+            
         if script:
             scent = script.db.scent
             if scent:
@@ -285,6 +291,67 @@ class Character(
             }
         )
         return string
+
+    def get_nakeds_display(self, observer):
+        """
+        Get the formatted display of naked descriptions that aren't covered by clothing.
+        
+        Args:
+            observer: The character observing this character
+            
+        Returns:
+            str: Formatted string of visible naked descriptions
+        """
+        try:
+            from commands.base_commands.nakeds import CmdNakedsHelper
+            return CmdNakedsHelper.format_nakeds_display(self, observer)
+        except ImportError:
+            # Nakeds system not available
+            return ""
+    
+    def process_pronoun_substitution(self, text):
+        """
+        Process pronoun substitution in text based on the character's current gender.
+        
+        Args:
+            text (str): Text with pronoun markers to substitute
+            
+        Returns:
+            str: Text with pronouns substituted
+        """
+        if not text:
+            return text
+            
+        # Get current gender info (could be fake if wearing a mask)
+        mask = self.db.mask
+        if mask:
+            gender = mask.db.gender or self.item_data.gender or "neutral"
+        else:
+            gender = self.item_data.gender or "neutral"
+        
+        gender = gender.lower()
+        
+        # Define pronoun mappings
+        pronouns = {
+            "male": {
+                "%P": "His", "%p": "his", "%s": "he", "%o": "him"
+            },
+            "female": {
+                "%P": "Her", "%p": "her", "%s": "she", "%o": "her"  
+            },
+            "neutral": {
+                "%P": "Their", "%p": "their", "%s": "they", "%o": "them"
+            }
+        }
+        
+        # Default to neutral if gender not recognized
+        pronoun_set = pronouns.get(gender, pronouns["neutral"])
+        
+        # Replace pronouns in text
+        for marker, replacement in pronoun_set.items():
+            text = text.replace(marker, replacement)
+        
+        return text
 
     def death_process(self, *args, **kwargs):
         """

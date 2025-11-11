@@ -51,6 +51,16 @@ except Exception as err:
     traceback.print_exc()
     print("<<ERROR>>: Error encountered in loading social commands: %s" % err)
 try:
+    from commands.base_commands import nakeds
+except Exception as err:
+    traceback.print_exc()
+    print("<<ERROR>>: Error encountered in loading nakeds commands: %s" % err)
+try:
+    from commands.base_commands import nakeds_admin
+except Exception as err:
+    traceback.print_exc()
+    print("<<ERROR>>: Error encountered in loading nakeds_admin commands: %s" % err)
+try:
     from commands.base_commands import xp
 except Exception as err:
     traceback.print_exc()
@@ -310,6 +320,7 @@ class MobileCmdSet(CmdSet):
         self.add(condition_commands.CmdKnacks())
         self.add(prayer_commands.CmdPray())
         self.add(plot_commands.CmdStlist())
+        self.add(nakeds.CmdNakeds())
 
 
 class StaffCmdSet(CmdSet):
@@ -389,6 +400,9 @@ class StaffCmdSet(CmdSet):
         self.add(combat.CmdStandYoAssUp())
         self.add(domcommands.CmdSetRoom())
         self.add(condition_commands.CmdModifiers())
+        # nakeds admin commands
+        self.add(nakeds_admin.CmdSetCoverage())
+        self.add(nakeds_admin.CmdNakedsAdmin())
         # home commands
         self.add(home.CmdAllowBuilding())
         self.add(home.CmdBuildRoom())

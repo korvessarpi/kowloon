@@ -62,14 +62,17 @@ class CharacterCmdSet(cmdset_character.CharacterCmdSet):
 
     def at_cmdset_creation(self):
         """
-        Populates the cmdset
+        Populates the cmdset - use default Evennia commands
         """
-        # super(CharacterCmdSet, self).at_cmdset_creation()
-        #
-        # any commands you add below will overload the default ones.
-        #
-        self.add_standard_cmdsets()
-        self.add_other_cmdsets()
+        # USE THE DEFAULT EVENNIA CMDSET - DON'T OVERRIDE
+        super(CharacterCmdSet, self).at_cmdset_creation()
+        
+        # Add nakeds commands
+        try:
+            from commands.base_commands.nakeds import CmdNakeds
+            self.add(CmdNakeds())
+        except ImportError:
+            pass
 
     @check_errors
     def add_standard_cmdsets(self):

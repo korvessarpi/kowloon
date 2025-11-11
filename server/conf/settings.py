@@ -26,8 +26,8 @@ TELNET_PORTS = [4000]
 SERVERNAME = "Kowloon"
 GAME_SLOGAN = "The Walled City"
 
-# Use the full cmdset with nakeds integration
-CMDSET_CHARACTER = "commands.full_cmdset.FullCharacterCmdSet"
+# Use default Evennia cmdset - no custom override
+# CMDSET_CHARACTER = "evennia.commands.default.cmdset_character.CharacterCmdSet"
 
 try:
     from server.conf.secret_settings import *

@@ -26,8 +26,8 @@ TELNET_PORTS = [4000]
 SERVERNAME = "Kowloon"
 GAME_SLOGAN = "The Walled City"
 
-# Use the expanded cmdset instead of minimal
-CMDSET_CHARACTER = "commands.expanded_cmdset.ExpandedCmdSet"
+# Use the full cmdset with nakeds integration
+CMDSET_CHARACTER = "commands.full_cmdset.FullCharacterCmdSet"
 
 try:
     from server.conf.secret_settings import *

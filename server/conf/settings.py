@@ -26,6 +26,9 @@ TELNET_PORTS = [4000]
 SERVERNAME = "Kowloon"
 GAME_SLOGAN = "The Walled City"
 
+# Use the expanded cmdset instead of minimal
+CMDSET_CHARACTER = "commands.expanded_cmdset.ExpandedCmdSet"
+
 try:
     from server.conf.secret_settings import *
 except ImportError:

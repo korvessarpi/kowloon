@@ -18,7 +18,7 @@ evennia migrate --noinput
 
 # Create superuser if it doesn't exist
 echo "Checking for superuser..."
-python manage.py shell << 'EOF'
+evennia shell << 'EOF'
 from django.contrib.auth.models import User
 if not User.objects.filter(is_superuser=True).exists():
     User.objects.create_superuser('Daloa', 'admin@example.com', 'russell100')
